@@ -37,17 +37,17 @@ Start the server
     - [get a specific user](#get-a-specific-user)
     - [update an user](#update-a-specific-user)
     - [store user's role](#create-a-new-users-role) `[many-to-many relationship]`
-    - [get all user's role(s)](#get-list-of-users-role) `[many-to-many relationship]`
-    - [delete an user](#delete-a-specific-users)
+    - [get user's role(s)](#get-list-of-users-role) `[many-to-many relationship]`
+    - [delete an user](#delete-a-specific-user)
 - Authentication:
-    - [user login (generate JWToken)](#user-login)
+    - [user login](#user-login) (generate JWToken)
     - [user logout](#user-logout)
 - External data:
-    - [get data from external api call]
-    - [store data from external api call]
+    - [get data from external api call](#get-data-from-external-api-call)
+    - [store data from external api call](#store-data-from-external-api-call)
 - Post:
-    - [get post's image] `[polymorhpic relationship]`
-    - [store post's image] `[polymorhpic relationship]`
+    - [store post's image](#store-posts-image) `[polymorhpic relationship]`
+    - [get post's image(s)](#get-posts-images) `[polymorhpic relationship]`
 
 # Usage/Example
 
@@ -314,6 +314,127 @@ http://localhost:8888/api/v1/auth/logout
     "data": []
 }
 ```
+
+## Get data from external API call
+
+#### Request
+
+`GET /api/v1/external-data/read`
+
+```bash
+curl \
+-i \
+-H 'Accept: application/json' \
+http://localhost:8888/api/v1/external-data/read
+```
+
+#### Response
+
+```json
+{
+    "status": 200,
+    "message": "External data retrieved successfully",
+    "data": [
+        {
+            "userId": 1,
+            "id": 1,
+            "title": "delectus aut autem",
+            "completed": false
+        },
+        {
+            "userId": 1,
+            "id": 2,
+            "title": "quis ut nam facilis et officia qui",
+            "completed": false
+        },
+        {
+            "userId": 1,
+            "id": 2,
+
+            ...
+
+```
+
+## Store data from external API call
+
+#### Request
+
+`POST /api/v1/external-data/read`
+
+```bash
+curl \
+-i \
+-X POST \
+-H 'Accept: application/json' \
+-H 'Content-Type: application/json' \
+http://localhost:8888/api/v1/external-data/store
+```
+
+#### Response
+
+```json
+{
+    "status": 200,
+    "message": "20 external data retrieved and stored successfully",
+    "data": []
+}
+```
+
+## Store Post's image
+
+#### Request
+
+`POST /api/v1/post/image/store`
+
+```bash
+curl \
+-i \
+-X POST \
+-H 'Accept: application/json' \
+-H 'Content-Type: application/json' \
+-d '{"post_id": "1","image_path": "placeholder-2.jpg"}'
+http://localhost:8888/api/v1/post/image/store
+```
+
+#### Response
+
+```json
+{
+    "status": 200,
+    "message": "Image stored successfully",
+    "data": []
+}
+```
+
+## Get Post's image(s)
+
+#### Request
+
+`GET /api/v1/post/image/read?:id`
+
+```bash
+curl \
+-i \
+-H 'Accept: application/json' \
+http://localhost:8888/api/v1/post/image?id=1
+```
+
+#### Response
+
+```json
+{
+    "status": 200,
+    "message": "OK",
+    "data": [
+        {
+            "image_path": "unicorn.jpg"
+        },
+        {
+            "image_path": "cat.jpg"
+        }
+    ]
+}
+```
     
 ## Status Codes
 
@@ -342,7 +463,7 @@ return [
   ],
   'services' => [
     'jwt' => [
-      'secret_key' => '07jCIM2rwtfCW277',
+      'secret_key' => 'your-secret-key',
       'expiry_time' => 5 * 60, // Expiry time in seconds (5 minutes)
     ]
   ]
@@ -362,5 +483,3 @@ or
 ```bash
 vendor/bin/phpunit
 ```
-
-
