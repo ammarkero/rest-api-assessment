@@ -32,22 +32,22 @@ Start the server
 # List of APIs
 
 - User:
-    - get all users (#get-list-of-users)
-    - get a specific user
-    - create an user
-    - update an user
-    - delete an user
-    - store user's role `[many-to-many relationship]`
-    - get all user's role(s) `[many-to-many relationship]`
+    - [get all users](#get-list-of-users)
+    - [create a new user](#create-a-new-user)
+    - [get a specific user](#get-a-specific-user)
+    - [update an user](#update-a-specific-user)
+    - [store user's role](#create-a-new-users-role) `[many-to-many relationship]`
+    - [get all user's role(s)](#get-list-of-users-role) `[many-to-many relationship]`
+    - [delete an user](#delete-a-specific-users)
 - Authentication:
-    - user login (generate JWToken)
-    - user logout
+    - [user login (generate JWToken)](#user-login)
+    - [user logout](#user-logout)
 - External data:
-    - get data from external api call
-    - store data from external api call
+    - [get data from external api call]
+    - [store data from external api call]
 - Post:
-    - get post's image `[polymorhpic relationship]`
-    - store post's image `[polymorhpic relationship]`
+    - [get post's image] `[polymorhpic relationship]`
+    - [store post's image] `[polymorhpic relationship]`
 
 # Usage/Example
 
@@ -107,16 +107,18 @@ http://localhost:8888/api/v1/user/create
 
 #### Response
 
-    {
-        "status": 201,
-        "message": "User successfully created",
-        "data": {
-            "id": 3,
-            "name": "Xavier",
-            "email": "hello@xavier.com",
-            "password": "$2y$10$eAvte8C7yxnJk/nLqzzHN.xGIIDY81rn3CoDJCZNDAWuEDjZ1DWhu"
-        }
+```json
+{
+    "status": 201,
+    "message": "User successfully created",
+    "data": {
+        "id": 3,
+        "name": "Xavier",
+        "email": "hello@xavier.com",
+        "password": "$2y$10$eAvte8C7yxnJk/nLqzzHN.xGIIDY81rn3CoDJCZNDAWuEDjZ1DWhu"
     }
+}
+```
 
 ## Get a specific User
 
@@ -133,16 +135,18 @@ http://localhost:8888/api/v1/user/single?id=4
 
 #### Response
 
-    {
-        "status": 200,
-        "message": "OK",
-        "data": {
-            "id": 4,
-            "name": "Rebeca Terry",
-            "email": "hello@rebeca.com",
-            "password": "$2y$10$.b1vaE0DKJ0k/SMTfR2IIe/HZ/urLaumrXJzZk3Fev2pzZjkRUHWe"
-        }
+```json
+{
+    "status": 200,
+    "message": "OK",
+    "data": {
+        "id": 4,
+        "name": "Rebeca Terry",
+        "email": "hello@rebeca.com",
+        "password": "$2y$10$.b1vaE0DKJ0k/SMTfR2IIe/HZ/urLaumrXJzZk3Fev2pzZjkRUHWe"
     }
+}
+```
     
 ## Update a specific User
 
@@ -162,16 +166,18 @@ http://localhost:8888/api/v1/user/update
 
 #### Response
 
-    {
-        "status": 200,
-        "message": "OK",
-        "data": {
-            "id": 1,
-            "name": "Sara",
-            "email": "hello@sara.com",
-            "password": "$2y$10$4ajTn60a7slI6OgXQiI8OulFgmp6LOkOp8iQFVen\/y62YMSrzLDyi"
-        }
+```json
+{
+    "status": 200,
+    "message": "OK",
+    "data": {
+        "id": 1,
+        "name": "Sara",
+        "email": "hello@sara.com",
+        "password": "$2y$10$4ajTn60a7slI6OgXQiI8OulFgmp6LOkOp8iQFVen\/y62YMSrzLDyi"
     }
+}
+```
     
 ## Create a new User's role
 
@@ -191,16 +197,18 @@ http://localhost:8888/api/v1/user/role/create
 
 #### Response
 
-    {
-        "status": 200,
-        "message": "OK",
-        "data": [
-            {
-                "title": "Admin"
-            }
-        ]
-    }
-    
+```json
+{
+    "status": 200,
+    "message": "OK",
+    "data": [
+        {
+            "title": "Admin"
+        }
+    ]
+}
+```
+
 ## Get list of User's role
 
 #### Request
@@ -216,15 +224,17 @@ http://localhost:8888/api/v1/user/role?id=1
 
 #### Response
 
-    {
-        "status": 200,
-        "message": "OK",
-        "data": [
-            {
-                "title": "Admin"
-            }
-        ]
-    }
+```json
+{
+    "status": 200,
+    "message": "OK",
+    "data": [
+        {
+            "title": "Admin"
+        }
+    ]
+}
+```
     
 ## Delete a specific User
 
@@ -243,11 +253,13 @@ http://localhost:8888/api/v1/user/delete
 
 #### Response
 
-    {
-        "status": 200,
-        "message": "User successfully deleted",
-        "data": []
-    }
+```json
+{
+    "status": 200,
+    "message": "User successfully deleted",
+    "data": []
+}
+```
     
 ## User Login 
 Request JWToken and  store `login_timestamp` value in `user_logs` table
@@ -267,13 +279,15 @@ http://localhost:8888/api/v1/auth/login
 
 #### Response
 
-    {
-        "status": 200,
-        "message": "User access token generated.",
-        "data": {
-            "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJsb2NhbGhvc3Q6ODg4OCIsInN1YiI6MSwiaWF0IjoxNjg3NDk1MDE5LCJleHAiOjE2ODc0OTUzMTl9.PxFcZrSWLtgQZdxtm8C6XpZkHm5URSXisOqFJ52vUz8"
-        }
+```json
+{
+    "status": 200,
+    "message": "User access token generated.",
+    "data": {
+        "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJsb2NhbGhvc3Q6ODg4OCIsInN1YiI6MSwiaWF0IjoxNjg3NDk1MDE5LCJleHAiOjE2ODc0OTUzMTl9.PxFcZrSWLtgQZdxtm8C6XpZkHm5URSXisOqFJ52vUz8"
     }
+}
+```
     
 ## User Logout
 store `logout_timestamp` value in `user_logs` table
@@ -283,7 +297,7 @@ store `logout_timestamp` value in `user_logs` table
 `POST /api/v1/auth/logout`
 
 ```bash
-curl \
+curl \ 
 -i -X POST \
 -H 'Accept: application/json' \
 -H 'Content-Type:application/json' \
@@ -293,11 +307,13 @@ http://localhost:8888/api/v1/auth/logout
 
 #### Response
 
-    {
-        "status": 200,
-        "message": "User logged out successfully",
-        "data": []
-    }
+```json
+{
+    "status": 200,
+    "message": "User logged out successfully",
+    "data": []
+}
+```
     
 ## Status Codes
 
