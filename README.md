@@ -483,3 +483,23 @@ or
 ```bash
 vendor/bin/phpunit
 ```
+
+## Useful Resources
+- Download (pick one) and import SQL Dump into your database.
+
+```
+root
+|
+|- rest_api_db.sql
+|- rest_api_db.gz
+|
+```
+
+-  Download and import Postman Collection to test API calls via Postman.
+
+```
+root
+|
+|- rest_api_postman_collection.json
+|
+```
