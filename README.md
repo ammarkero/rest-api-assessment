@@ -1,51 +1,350 @@
-# Coding and SQL Assessments
 
-Your task is to design and implement a PHP-based RESTful API that interacts with a MySQL database and integrates with an external data source. The complexity of this task is intended to evaluate your ability to create robust, efficient code that adheres to best practices and coding standards.
+# REST API Assessment
 
-## Task:
+This is a simple PHP application providing a REST API.
 
-## Database Creation
-- Create a MySQL database containing three tables: users, user_logs, and external_data
-- The users table should have the following fields: id, name, email, password
-- The user_logs table should contain: id, user_id, login_timestamp, logout_timestamp
-- The external_data table should contain: id, user_id, data
-- Create any 1 many-to-many table and 1 morph table that related to user.
+## Run Locally
 
-## API Development
-- Develop a PHP-based RESTful API that can perform the following operations: 
-o	Create a new user (POST)
-o	Retrieve all users (GET)
-o	Retrieve a single user (GET)
-o	Update a user's information (PUT)
-o	Delete a user (DELETE)
-o	Record a user's login and logout timestamps (POST)
-o	Retrieve and store data from an external data source (e.g., a public API of your choice) (GET, POST)
-o	Retrieve and store data for many-to-many relationship & morph relationship with user (GET,POST)
+Clone the project
 
-## Authentication
-- Implement secure authentication for the API using JWT (JSON Web Tokens)
-- Implement rate limiting for API requests to prevent abuse
-Error Handling & Logging
-- Implement proper error handling for the API
-- Log errors and exceptions in a format and location that would be suitable for later analysis
-Testing
-- Write PHPUnit tests to ensure the API works as expected, including tests for the rate limiting and error handling features
+```bash
+  git clone https://github.com/ammarkero/rest-api-assessment.git
+```
 
-## Submission:
-Submit your code via a GitHub repository. Please ensure to include:
-1.	The database schema
-2.	The PHP code for the API
-3.	PHPUnit test code
-4.	A README.md file that explains how to set up and use the API, including how to run the tests
+Go to the project directory
 
-## Evaluation Criteria:
-Your assignment will be evaluated based on the following:
-1.	Code Quality: The code should be clean, efficient, and adhere to best practices and coding standards.
-2.	Database Design: The database should be properly structured and normalized.
-3.	Functionality: The API should work as described.
-4.	Security: The authentication and rate limiting should provide a secure environment for the API.
-5.	Error Handling & Logging: The solution should gracefully handle errors and log them appropriately.
-6.	Testing: The tests should cover all crucial functionalities and edge cases.
-7.	Documentation: The README.md should clearly explain how to set up and use the API.
+```bash
+  cd rest-api-assessment
+```
 
-Remember, the goal is not just to complete the task but to demonstrate your senior-level proficiency with PHP, MySQL, RESTful APIs, JWT authentication, rate limiting, error handling, logging, and PHPUnit testing. Good luck!
+Install dependencies
+
+```bash
+  composer install
+```
+
+Start the server
+
+```bash
+  php -S localhost:8888 -t public
+```
+
+# List of APIs
+
+- User:
+    - get all users (#get-list-of-users)
+    - get a specific user
+    - create an user
+    - update an user
+    - delete an user
+    - store user's role `[many-to-many relationship]`
+    - get all user's role(s) `[many-to-many relationship]`
+- Authentication:
+    - user login (generate JWToken)
+    - user logout
+- External data:
+    - get data from external api call
+    - store data from external api call
+- Post:
+    - get post's image `[polymorhpic relationship]`
+    - store post's image `[polymorhpic relationship]`
+
+# Usage/Example
+
+The REST API to the app is described below.
+
+## Get list of Users
+
+#### Request
+
+`GET /api/v1/user/all`
+
+```bash
+curl \
+-i \
+-H 'Accept: application/json' \
+http://localhost:8888/api/v1/user/all
+```
+
+#### Response
+
+```json
+{
+    "status":200,
+    "message":"OK",
+    "data":[
+        {
+        "id":1,
+        "name":"Jake Smith",
+        "email":"jakesmith@email.com",
+        "password":"$2y$10$e\/pbdN7ji1UWp\/GheWPKJOaKF7zG14RNj2doLqP3CX7GHhkFFJGs2"
+        },
+        {
+        "id":2,
+        "name":"Donato Padberg",
+        "email":"donato.padberg@email.com",
+        "password":"$2y$10$Ob7Rz3kUa0\/mqsQNHJKxdeFTwhDptoClk6hASn8aunp8sRyfqlkXi"
+        }
+    ]
+}
+```
+
+## Create a new User
+
+#### Request
+
+`POST /api/v1/user/cerate`
+
+```bash
+url \
+-i \
+-X POST \
+-H 'Accept: application/json' \
+-H 'Content-Type:application/json' \
+-d '{"name": "Xavier", "email": "hello@xavier.com","password":"12345678"}' \
+http://localhost:8888/api/v1/user/create
+```
+
+#### Response
+
+    {
+        "status": 201,
+        "message": "User successfully created",
+        "data": {
+            "id": 3,
+            "name": "Xavier",
+            "email": "hello@xavier.com",
+            "password": "$2y$10$eAvte8C7yxnJk/nLqzzHN.xGIIDY81rn3CoDJCZNDAWuEDjZ1DWhu"
+        }
+    }
+
+## Get a specific User
+
+#### Request
+
+`GET /api/v1/user/single?:id`
+
+```bash
+curl \
+-i \
+-H 'Accept: application/json' \
+http://localhost:8888/api/v1/user/single?id=4
+```
+
+#### Response
+
+    {
+        "status": 200,
+        "message": "OK",
+        "data": {
+            "id": 4,
+            "name": "Rebeca Terry",
+            "email": "hello@rebeca.com",
+            "password": "$2y$10$.b1vaE0DKJ0k/SMTfR2IIe/HZ/urLaumrXJzZk3Fev2pzZjkRUHWe"
+        }
+    }
+    
+## Update a specific User
+
+#### Request
+
+`PUT /api/v1/user/update`
+
+```bash
+curl \
+-i \
+-H 'Accept: application/json' \
+-H 'Content-Type:application/json' \
+-X PUT \
+-d '{"id": "1","name": "Sara","email": "hello@sara.com","password": "abc1234567"} \
+http://localhost:8888/api/v1/user/update
+```
+
+#### Response
+
+    {
+        "status": 200,
+        "message": "OK",
+        "data": {
+            "id": 1,
+            "name": "Sara",
+            "email": "hello@sara.com",
+            "password": "$2y$10$4ajTn60a7slI6OgXQiI8OulFgmp6LOkOp8iQFVen\/y62YMSrzLDyi"
+        }
+    }
+    
+## Create a new User's role
+
+#### Request
+
+`POST /api/v1/user/role/create`
+
+```bash
+curl \
+-i \
+-X POST \
+-H 'Accept: application/json' \
+-H 'Content-Type:application/json' \
+-d '{"email": "hello@sara.com","role_id": "1"}'\
+http://localhost:8888/api/v1/user/role/create
+```
+
+#### Response
+
+    {
+        "status": 200,
+        "message": "OK",
+        "data": [
+            {
+                "title": "Admin"
+            }
+        ]
+    }
+    
+## Get list of User's role
+
+#### Request
+
+`GET /api/v1/user/role?:id`
+
+```bash
+curl \
+-i \
+-H 'Accept: application/json' \
+http://localhost:8888/api/v1/user/role?id=1
+```
+
+#### Response
+
+    {
+        "status": 200,
+        "message": "OK",
+        "data": [
+            {
+                "title": "Admin"
+            }
+        ]
+    }
+    
+## Delete a specific User
+
+#### Request
+
+`DELETE /api/v1/user/delete`
+```bash
+curl \
+-i \
+-X DELETE \
+-H 'Accept: application/json' \
+-H 'Content-Type:application/json' \
+-d '{"id": "13"}' \
+http://localhost:8888/api/v1/user/delete
+```
+
+#### Response
+
+    {
+        "status": 200,
+        "message": "User successfully deleted",
+        "data": []
+    }
+    
+## User Login 
+Request JWToken and  store `login_timestamp` value in `user_logs` table
+
+#### Request
+
+`POST /api/v1/auth/login`
+
+```bash
+curl \
+-i -X POST \
+-H 'Accept: application/json' \
+-H 'Content-Type:application/json' \
+-d '{"email": "hello@sara.com","password":"abc1234567"}' \
+http://localhost:8888/api/v1/auth/login
+```
+
+#### Response
+
+    {
+        "status": 200,
+        "message": "User access token generated.",
+        "data": {
+            "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJsb2NhbGhvc3Q6ODg4OCIsInN1YiI6MSwiaWF0IjoxNjg3NDk1MDE5LCJleHAiOjE2ODc0OTUzMTl9.PxFcZrSWLtgQZdxtm8C6XpZkHm5URSXisOqFJ52vUz8"
+        }
+    }
+    
+## User Logout
+store `logout_timestamp` value in `user_logs` table
+
+#### Request
+
+`POST /api/v1/auth/logout`
+
+```bash
+curl \
+-i -X POST \
+-H 'Accept: application/json' \
+-H 'Content-Type:application/json' \
+-H "Authorization: Bearer {token}" \
+http://localhost:8888/api/v1/auth/logout
+```
+
+#### Response
+
+    {
+        "status": 200,
+        "message": "User logged out successfully",
+        "data": []
+    }
+    
+## Status Codes
+
+Response returns the following status codes in its API:
+
+| Status Code | Description |
+| :--- | :--- |
+| 200 | `OK` |
+| 201 | `CREATED` |
+| 400 | `BAD REQUEST` |
+| 404 | `NOT FOUND` |
+| 429 | `TOO MANY REQUESTS` |
+| 500 | `INTERNAL SERVER ERROR` |
+
+## App Configuration
+
+```php
+// config.php
+
+return [
+  'database' => [
+    'host' => 'localhost',
+    'port' => 3306,
+    'dbname' => 'digitas_db',
+    'charset' => 'utf8mb4'
+  ],
+  'services' => [
+    'jwt' => [
+      'secret_key' => '07jCIM2rwtfCW277',
+      'expiry_time' => 5 * 60, // Expiry time in seconds (5 minutes)
+    ]
+  ]
+];
+```
+
+## Running Tests
+
+To run tests, run the following command
+
+```bash
+composer test
+```
+
+or
+
+```bash
+vendor/bin/phpunit
+```
+
+
