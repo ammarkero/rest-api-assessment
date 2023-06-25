@@ -6,22 +6,12 @@ use Predis;
 class Router
 {
     protected $routes = [];
-
-    protected $ttl;
-    protected $ip;
+    protected $redis;
 
     public function __construct()
     {
-        // Example Rate limit: 60 requests per 10 seconds
-        // $this->ip = 'localhost';
-        // // $this->ip = $_SERVER['REMOTE_ADDR'];
-        // $redisClient = new Predis\Client();
-        // $redisClient->incr($this->ip);
-        // if ($redisClient->get($this->ip) == 1) $redisClient->expire($this->ip, 10); // 10 seconds
-        // if ($redisClient->get($this->ip) > 60) { // 60 requests
-        //     $this->ttl = $redisClient->ttl($this->ip);
-        //     sendResponse(429, "You have exceeded your rate limit. Please try again in {$this->ttl} seconds.");
-        // }
+        $this->redis = new Predis\Client();
+        $this->redis->connect();
     }
 
     public function add($method, $uri, $controller)
@@ -60,13 +50,44 @@ class Router
 
     public function route($uri, $method)
     {
-        foreach ($this->routes as $route) {
-            if ($route['uri'] === $uri && $route['method'] === strtoupper($method)) {
-                return require base_path($route['controller']);
-            }
+
+        $route = $this->findMatchingRoute($uri, $method);
+
+        if ($route) {
+            $this->applyRateLimitMiddleware();
+            return require base_path($route['controller']);
         }
 
         $this->abort();
+    }
+
+    protected function findMatchingRoute($uri, $method)
+    {
+        foreach ($this->routes as $route) {
+            if ($route['uri'] === $uri && $route['method'] === strtoupper($method)) {
+                return $route;
+            }
+        }
+
+        return null;
+    }
+
+    protected function applyRateLimitMiddleware()
+    {
+        $requestKey = $_SERVER['REMOTE_ADDR'];
+        
+        $limit = 100; // number of requests
+        $timeFrame = 60 * 60; // 1 hour in seconds
+        
+        $requestCount = $this->redis->get($requestKey);
+
+        $this->redis->incr($requestKey);
+        // set the TTL to 1 hour only if it's the first request
+        if ($requestCount == 1) $this->redis->expire($requestKey, $timeFrame);
+        if ($requestCount >= $limit) { // 100 requests
+            sendResponse(429, "You have exceeded your rate limit. Please try again in {$this->redis->ttl($requestKey)} seconds.");
+        }
+
     }
 
     protected function abort($code = 404)

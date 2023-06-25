@@ -17,13 +17,6 @@ spl_autoload_register(function ($class) {
 require base_path('vendor/autoload.php');
 require base_path('Core/helpers.php');
 
-// $client = new Predis\Client();
-// $client->set('foo', 'bar');
-// $value = $client->get('foo');
-
-// dd($value);
-// die();
-
 $router = new \Core\Router();
 $routes = require base_path('routes.php');
 
