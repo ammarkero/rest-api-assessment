@@ -3,16 +3,15 @@
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 
-// require_once __DIR__ . '/../Core/functions.php';
-
 class UserTest extends TestCase
 {
     protected $http;
+    protected $baseUrl = 'http://localhost:8888';
 
     public function setUp() :void
     {
         global $userId, $userEmail;
-        $this->http = new Client(['base_uri' => 'http://localhost:8888']);
+        $this->http = new Client(['base_uri' => $this->baseUrl]);
 
     }
 
@@ -27,23 +26,19 @@ class UserTest extends TestCase
             'http_errors' => false
         ]);
 
-        $bodyContent = json_decode($response->getBody()->getContents(), true);
+        $this->assertEquals(200, $response->getStatusCode());
 
-        switch ($response->getStatusCode()) {
-            case 200:
-                $this->assertEquals(200, $response->getStatusCode());
-                $this->assertArrayHasKey('message', $bodyContent);
-                $this->assertArrayHasKey('data', $bodyContent);
-                break;
-            case 404:
-                $this->assertEquals(404, $response->getStatusCode());
-                $this->assertArrayHasKey('message', $bodyContent);
-                $this->assertEquals('No users found', $bodyContent['message']);
-                break;
-        };
+        $responseData = json_decode($response->getBody()->getContents(), true);
+        $this->assertArrayHasKey('message', $responseData);
+        $this->assertArrayHasKey('data', $responseData);
+        
+        if ($response->getStatusCode() === 200) {
+            $this->assertNotEmpty($responseData['data']);
+        } elseif ($response->getStatusCode() === 404) {
+            $this->assertEquals('No users found', $responseData['message']);
+        }
 
-        $contentType = $response->getHeaders()["Content-Type"][0];
-        $this->assertEquals("application/json", $contentType);
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
     }
 
     public function testGetAllUserWithWrongUrl()
@@ -51,6 +46,7 @@ class UserTest extends TestCase
         $response = $this->http->request('GET', '/api/v1/user/alll', [
             'http_errors' => false
         ]);
+        $this->assertEquals(404, $response->getStatusCode());
         $this->assertStringContainsString('<h1>404 - Not Found</h1>', $response->getBody()->getContents());
     }
 
@@ -70,25 +66,28 @@ class UserTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $bodyContent = json_decode($response->getBody()->getContents(), true);
+        $responseData = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertArrayHasKey('message', $bodyContent);
-        $this->assertEquals('User successfully created', $bodyContent['message']);
+        $this->assertArrayHasKey('message', $responseData);
+        $this->assertEquals('User successfully created', $responseData['message']);
+        $this->assertArrayHasKey('data', $responseData);
 
-        $this->assertArrayHasKey('data', $bodyContent);
-        $this->assertArrayHasKey('id', $bodyContent['data']);
-        $this->assertArrayHasKey('name', $bodyContent['data']);
-        $this->assertEquals($jsonData['name'], $bodyContent['data']['name']);
-        $this->assertArrayHasKey('email', $bodyContent['data']);
-        $this->assertEquals($jsonData['email'], $bodyContent['data']['email']);
-        $this->assertArrayHasKey('password', $bodyContent['data']);
+        $userData = $responseData['data'];
+        $this->assertArrayHasKey('id', $userData);
+        $this->assertArrayHasKey('name', $userData);
+        $this->assertArrayHasKey('email', $userData);
+        $this->assertArrayHasKey('password', $userData);
+
+        
+
+        $this->assertSame($jsonData['name'], $userData['name']);
+        $this->assertSame($jsonData['email'], $userData['email']);
 
         global $userId, $userEmail;
-        $userId = $bodyContent['data']['id'];
-        $userEmail = $bodyContent['data']['email'];
+        $userId = $userData['id'];
+        $userEmail = $userData['email'];
 
-        $contentType = $response->getHeaders()["Content-Type"][0];
-        $this->assertEquals("application/json", $contentType);
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
     }
 
     public function testCreateUserWithMissingData()
@@ -104,13 +103,12 @@ class UserTest extends TestCase
 
         $this->assertEquals(400, $response->getStatusCode());
 
-        $bodyContent = json_decode($response->getBody()->getContents(), true);
+        $responseData = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertArrayHasKey('message', $bodyContent);
-        $this->assertEquals('Missing required data', $bodyContent['message']);
+        $this->assertArrayHasKey('message', $responseData);
+        $this->assertEquals('Missing required data', $responseData['message']);
 
-        $contentType = $response->getHeaders()["Content-Type"][0];
-        $this->assertEquals("application/json", $contentType);
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
     }
 
     public function testCreateUserWithWrongUrl()
@@ -140,18 +138,19 @@ class UserTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $bodyContent = json_decode($response->getBody()->getContents(), true);
+        $responseData = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertArrayHasKey('message', $bodyContent);
-        $this->assertEquals('OK', $bodyContent['message']);
-        $this->assertArrayHasKey('id', $bodyContent['data']);
-        $this->assertEquals($userId, $bodyContent['data']['id']);
-        $this->assertArrayHasKey('name', $bodyContent['data']);
-        $this->assertArrayHasKey('email', $bodyContent['data']);
-        $this->assertArrayHasKey('password', $bodyContent['data']);
+        $this->assertArrayHasKey('message', $responseData);
+        $this->assertEquals('OK', $responseData['message']);
 
-        $contentType = $response->getHeaders()["Content-Type"][0];
-        $this->assertEquals("application/json", $contentType);
+        $userData = $responseData['data'];
+        $this->assertArrayHasKey('id', $userData);
+        $this->assertEquals($userId, $userData['id']);
+        $this->assertArrayHasKey('name', $userData);
+        $this->assertArrayHasKey('email', $userData);
+        $this->assertArrayHasKey('password', $userData);
+
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
     }
 
     public function testGetSingleUserWithWrongUrl()
@@ -171,18 +170,15 @@ class UserTest extends TestCase
         
         $this->assertEquals(404, $response->getStatusCode());
 
-        $bodyContent = json_decode($response->getBody()->getContents(), true);
+        $responseData = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertArrayHasKey('message', $bodyContent);
-        $this->assertEquals('User not found', $bodyContent['message']);
-        $this->assertEquals([], $bodyContent['data']);
+        $this->assertArrayHasKey('message', $responseData);
+        $this->assertEquals('User not found', $responseData['message']);
+        $this->assertEmpty($responseData['data']);
 
-        $contentType = $response->getHeaders()["Content-Type"][0];
-        $this->assertEquals("application/json", $contentType);
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
 
     }
-
-    
 
     public function testUpdateUser()
     {
@@ -201,15 +197,14 @@ class UserTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $bodyContent = json_decode($response->getBody()->getContents(), true);
+        $responseData = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertArrayHasKey('message', $bodyContent);
-        $this->assertEquals('User successfully updated', $bodyContent['message']);
+        $this->assertArrayHasKey('message', $responseData);
+        $this->assertEquals('User successfully updated', $responseData['message']);
 
-        $userEmail = $bodyContent['data']['email'];
+        $userEmail = $responseData['data']['email'];
 
-        $contentType = $response->getHeaders()["Content-Type"][0];
-        $this->assertEquals("application/json", $contentType);
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
 
     }
 
@@ -228,13 +223,12 @@ class UserTest extends TestCase
 
         $this->assertEquals(400, $response->getStatusCode());
 
-        $bodyContent = json_decode($response->getBody()->getContents(), true);
+        $responseData = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertArrayHasKey('message', $bodyContent);
-        $this->assertEquals('Missing required data', $bodyContent['message']);
+        $this->assertArrayHasKey('message', $responseData);
+        $this->assertEquals('Missing required data', $responseData['message']);
 
-        $contentType = $response->getHeaders()["Content-Type"][0];
-        $this->assertEquals("application/json", $contentType);
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
     }
 
     public function testUpdateUserWithWrongUrl()
@@ -268,13 +262,12 @@ class UserTest extends TestCase
 
         $this->assertEquals(404, $response->getStatusCode());
 
-        $bodyContent = json_decode($response->getBody()->getContents(), true);
+        $responseData = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertArrayHasKey('message', $bodyContent);
-        $this->assertEquals('User not found', $bodyContent['message']);
+        $this->assertArrayHasKey('message', $responseData);
+        $this->assertEquals('User not found', $responseData['message']);
 
-        $contentType = $response->getHeaders()["Content-Type"][0];
-        $this->assertEquals("application/json", $contentType);
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
     }
 
     public function testCreateUserRole()
@@ -289,13 +282,12 @@ class UserTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $bodyContent = json_decode($response->getBody()->getContents(), true);
+        $responseData = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertArrayHasKey('message', $bodyContent);
-        $this->assertEquals('User role successfully created', $bodyContent['message']);
+        $this->assertArrayHasKey('message', $responseData);
+        $this->assertEquals('User role successfully created', $responseData['message']);
 
-        $contentType = $response->getHeaders()["Content-Type"][0];
-        $this->assertEquals("application/json", $contentType);
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
 
     }
 
@@ -312,13 +304,12 @@ class UserTest extends TestCase
 
         $this->assertEquals(400, $response->getStatusCode());
 
-        $bodyContent = json_decode($response->getBody()->getContents(), true);
+        $responseData = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertArrayHasKey('message', $bodyContent);
-        $this->assertEquals('Missing required data', $bodyContent['message']);
+        $this->assertArrayHasKey('message', $responseData);
+        $this->assertEquals('Missing required data', $responseData['message']);
 
-        $contentType = $response->getHeaders()["Content-Type"][0];
-        $this->assertEquals("application/json", $contentType);
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
     }
 
     public function testGetUserRole()
@@ -332,13 +323,12 @@ class UserTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $bodyContent = json_decode($response->getBody()->getContents(), true);
+        $responseData = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertArrayHasKey('message', $bodyContent);
-        $this->assertEquals('OK', $bodyContent['message']);
+        $this->assertArrayHasKey('message', $responseData);
+        $this->assertEquals('OK', $responseData['message']);
 
-        $contentType = $response->getHeaders()["Content-Type"][0];
-        $this->assertEquals("application/json", $contentType);
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
     }
 
     public function testGetUserRoleWithMissingData()
@@ -353,13 +343,12 @@ class UserTest extends TestCase
 
         $this->assertEquals(400, $response->getStatusCode());
 
-        $bodyContent = json_decode($response->getBody()->getContents(), true);
+        $responseData = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertArrayHasKey('message', $bodyContent);
-        $this->assertEquals('Missing required id', $bodyContent['message']);
+        $this->assertArrayHasKey('message', $responseData);
+        $this->assertEquals('Missing required id', $responseData['message']);
 
-        $contentType = $response->getHeaders()["Content-Type"][0];
-        $this->assertEquals("application/json", $contentType);
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
     }
 
     public function testGetUserRoleWithWrongUrl()
@@ -387,13 +376,12 @@ class UserTest extends TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
 
-        $bodyContent = json_decode($response->getBody()->getContents(), true);
+        $responseData = json_decode($response->getBody()->getContents(), true);
 
-        $this->assertArrayHasKey('message', $bodyContent);
-        $this->assertEquals('User successfully deleted', $bodyContent['message']);
+        $this->assertArrayHasKey('message', $responseData);
+        $this->assertEquals('User successfully deleted', $responseData['message']);
 
-        $contentType = $response->getHeaders()["Content-Type"][0];
-        $this->assertEquals("application/json", $contentType);
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
 
     }
     
