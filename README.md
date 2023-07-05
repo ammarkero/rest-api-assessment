@@ -3,6 +3,8 @@
 
 This is a simple PHP application providing a REST API.
 
+Looking for the Laravel version of this application? Click [here](https://github.com/ammarkero/laravel-rest-api-assessment "here")
+
 ## Run Locally
 
 Clone the project
@@ -93,12 +95,11 @@ http://localhost:8888/api/v1/user/all
 
 #### Request
 
-`POST /api/v1/user/cerate`
+`POST /api/v1/user/create`
 
 ```bash
 url \
--i \
--X POST \
+-i -X POST \
 -H 'Accept: application/json' \
 -H 'Content-Type:application/json' \
 -d '{"name": "Xavier", "email": "hello@xavier.com","password":"12345678"}' \
@@ -156,10 +157,9 @@ http://localhost:8888/api/v1/user/single?id=4
 
 ```bash
 curl \
--i \
+-i -X PUT \
 -H 'Accept: application/json' \
 -H 'Content-Type:application/json' \
--X PUT \
 -d '{"id": "1","name": "Sara","email": "hello@sara.com","password": "abc1234567"} \
 http://localhost:8888/api/v1/user/update
 ```
@@ -187,8 +187,7 @@ http://localhost:8888/api/v1/user/update
 
 ```bash
 curl \
--i \
--X POST \
+-i -X POST \
 -H 'Accept: application/json' \
 -H 'Content-Type:application/json' \
 -d '{"email": "hello@sara.com","role_id": "1"}'\
@@ -243,8 +242,7 @@ http://localhost:8888/api/v1/user/role?id=1
 `DELETE /api/v1/user/delete`
 ```bash
 curl \
--i \
--X DELETE \
+-i -X DELETE \
 -H 'Accept: application/json' \
 -H 'Content-Type:application/json' \
 -d '{"id": "13"}' \
@@ -363,8 +361,7 @@ http://localhost:8888/api/v1/external-data/read
 
 ```bash
 curl \
--i \
--X POST \
+-i -X POST \
 -H 'Accept: application/json' \
 -H 'Content-Type: application/json' \
 http://localhost:8888/api/v1/external-data/store
@@ -388,8 +385,7 @@ http://localhost:8888/api/v1/external-data/store
 
 ```bash
 curl \
--i \
--X POST \
+-i -X POST \
 -H 'Accept: application/json' \
 -H 'Content-Type: application/json' \
 -d '{"post_id": "1","image_path": "placeholder-2.jpg"}'
@@ -485,7 +481,7 @@ vendor/bin/phpunit
 ```
 
 ## Useful Resources
-- Download (pick one) and import SQL Dump into your database.
+- Locate (and pick one) and import SQL Dump into your database.
 
 ```
 root
@@ -495,7 +491,7 @@ root
 |
 ```
 
--  Download and import Postman Collection to test API calls via Postman.
+-  Locate and import Postman Collection to test API calls via Postman.
 
 ```
 root
